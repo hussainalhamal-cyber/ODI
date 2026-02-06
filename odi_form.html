@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oswestry Disability Index (ODI)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: ltr;
+        }
+        
+        body.rtl {
+            direction: rtl;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .lang-switch {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .lang-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 8px 20px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .patient-info {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .question {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .question-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .option {
+            margin-bottom: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .option:hover {
+            background: #f1f3f5;
+            border-color: #667eea;
+        }
+        
+        .option input[type="radio"] {
+            margin-right: 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .option label {
+            cursor: pointer;
+            display: inline;
+            font-size: 15px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .score-number {
+            font-size: 60px;
+            font-weight: bold;
+        }
+        
+        .score-label {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .interpretation {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .patient-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .score-circle {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .score-number {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="mainTitle">Oswestry Disability Index (ODI)</h1>
+            <p id="subtitle">Low Back Pain Disability Questionnaire</p>
+        </div>
+        
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="switchLanguage('en')">English</button>
+            <button class="lang-btn" onclick="switchLanguage('ar')">العربية</button>
+        </div>
+        
+        <div class="content">
+            <form id="odiForm">
+                <div class="patient-info">
+                    <div class="form-group">
+                        <label id="nameLabel">Patient Name:</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label id="emailLabel">Email Address:</label>
+                        <input type="email" id="patientEmail" required>
+                    </div>
+                </div>
+                
+                <div id="questions"></div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">Calculate Score</button>
+            </form>
+            
+            <div class="result" id="result">
+                <h2 id="resultTitle">Your ODI Score</h2>
+                <div class="patient-details">
+                    <p><strong id="resultNameLabel">Name:</strong> <span id="resultName"></span></p>
+                    <p><strong id="resultEmailLabel">Email:</strong> <span id="resultEmail"></span></p>
+                </div>
+                <div class="score-circle">
+                    <div class="score-number" id="scoreNumber">0</div>
+                    <div class="score-label" id="scoreLabel">%</div>
+                </div>
+                <div class="interpretation">
+                    <p id="interpretationText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                mainTitle: "Oswestry Disability Index (ODI)",
+                subtitle: "Low Back Pain Disability Questionnaire",
+                nameLabel: "Patient Name:",
+                emailLabel: "Email Address:",
+                submitBtn: "Calculate Score",
+                resultTitle: "Your ODI Score",
+                resultNameLabel: "Name:",
+                resultEmailLabel: "Email:",
+                scoreLabel: "%",
+                questions: [
+                    {
+                        title: "Section 1 - Pain Intensity",
+                        options: [
+                            "I have no pain at the moment",
+                            "The pain is very mild at the moment",
+                            "The pain is moderate at the moment",
+                            "The pain is fairly severe at the moment",
+                            "The pain is very severe at the moment",
+                            "The pain is the worst imaginable at the moment"
+                        ]
+                    },
+                    {
+                        title: "Section 2 - Personal Care (Washing, Dressing, etc.)",
+                        options: [
+                            "I can look after myself normally without causing extra pain",
+                            "I can look after myself normally but it causes extra pain",
+                            "It is painful to look after myself and I am slow and careful",
+                            "I need some help but manage most of my personal care",
+                            "I need help every day in most aspects of self-care",
+                            "I do not get dressed, I wash with difficulty and stay in bed"
+                        ]
+                    },
+                    {
+                        title: "Section 3 - Lifting",
+                        options: [
+                            "I can lift heavy weights without extra pain",
+                            "I can lift heavy weights but it gives extra pain",
+                            "Pain prevents me from lifting heavy weights off the floor, but I can manage if they are conveniently placed",
+                            "Pain prevents me from lifting heavy weights, but I can manage light to medium weights if they are conveniently positioned",
+                            "I can lift very light weights",
+                            "I cannot lift or carry anything at all"
+                        ]
+                    },
+                    {
+                        title: "Section 4 - Walking",
+                        options: [
+                            "Pain does not prevent me walking any distance",
+                            "Pain prevents me from walking more than 1 mile",
+                            "Pain prevents me from walking more than 1/2 mile",
+                            "Pain prevents me from walking more than 100 yards",
+                            "I can only walk using a stick or crutches",
+                            "I am in bed most of the time"
+                        ]
+                    },
+                    {
+                        title: "Section 5 - Sitting",
+                        options: [
+                            "I can sit in any chair as long as I like",
+                            "I can only sit in my favorite chair as long as I like",
+                            "Pain prevents me sitting more than one hour",
+                            "Pain prevents me from sitting more than 30 minutes",
+                            "Pain prevents me from sitting more than 10 minutes",
+                            "Pain prevents me from sitting at all"
+                        ]
+                    },
+                    {
+                        title: "Section 6 - Standing",
+                        options: [
+                            "I can stand as long as I want without extra pain",
+                            "I can stand as long as I want but it gives me extra pain",
+                            "Pain prevents me from standing for more than 1 hour",
+                            "Pain prevents me from standing for more than 30 minutes",
+                            "Pain prevents me from standing for more than 10 minutes",
+                            "Pain prevents me from standing at all"
+                        ]
+                    },
+                    {
+                        title: "Section 7 - Sleeping",
+                        options: [
+                            "My sleep is never disturbed by pain",
+                            "My sleep is occasionally disturbed by pain",
+                            "Because of pain I have less than 6 hours sleep",
+                            "Because of pain I have less than 4 hours sleep",
+                            "Because of pain I have less than 2 hours sleep",
+                            "Pain prevents me from sleeping at all"
+                        ]
+                    },
+                    {
+                        title: "Section 8 - Sex Life (if applicable)",
+                        options: [
+                            "My sex life is normal and causes no extra pain",
+                            "My sex life is normal but causes some extra pain",
+                            "My sex life is nearly normal but is very painful",
+                            "My sex life is severely restricted by pain",
+                            "My sex life is nearly absent because of pain",
+                            "Pain prevents any sex life at all"
+                        ]
+                    },
+                    {
+                        title: "Section 9 - Social Life",
+                        options: [
+                            "My social life is normal and gives me no extra pain",
+                            "My social life is normal but increases the degree of pain",
+                            "Pain has no significant effect on my social life apart from limiting my more energetic interests",
+                            "Pain has restricted my social life and I do not go out as often",
+                            "Pain has restricted my social life to my home",
+                            "I have no social life because of pain"
+                        ]
+                    },
+                    {
+                        title: "Section 10 - Traveling",
+                        options: [
+                            "I can travel anywhere without pain",
+                            "I can travel anywhere but it gives me extra pain",
+                            "Pain is bad but I manage journeys over two hours",
+                            "Pain restricts me to journeys of less than one hour",
+                            "Pain restricts me to short necessary journeys under 30 minutes",
+                            "Pain prevents me from traveling except to receive treatment"
+                        ]
+                    }
+                ],
+                interpretations: {
+                    minimal: "Minimal disability - The patient can cope with most living activities. Usually no treatment is indicated apart from advice on lifting, sitting, and exercise.",
+                    moderate: "Moderate disability - The patient experiences more pain and difficulty with sitting, lifting and standing. Travel and social life are more difficult and they may be disabled from work. Personal care, sexual activity and sleeping are not grossly affected. Conservative treatment may be sufficient.",
+                    severe: "Severe disability - Pain remains the main problem in this group but activities of daily living are affected. These patients require a detailed investigation.",
+                    crippled: "Crippled - Back pain impinges on all aspects of the patient's life. Positive intervention is required.",
+                    bedbound: "These patients are either bed-bound or exaggerating their symptoms."
+                }
+            },
+            ar: {
+                mainTitle: "مؤشر أوسويستري للإعاقة",
+                subtitle: "استبيان إعاقة آلام أسفل الظهر",
+                nameLabel: "اسم المريض:",
+                emailLabel: "البريد الإلكتروني:",
+                submitBtn: "احسب النتيجة",
+                resultTitle: "نتيجة المؤشر الخاصة بك",
+                resultNameLabel: "الاسم:",
+                resultEmailLabel: "البريد الإلكتروني:",
+                scoreLabel: "%",
+                questions: [
+                    {
+                        title: "القسم 1 - شدة الألم",
+                        options: [
+                            "ليس لدي أي ألم في الوقت الحالي",
+                            "الألم خفيف جداً في الوقت الحالي",
+                            "الألم متوسط في الوقت الحالي",
+                            "الألم شديد إلى حد ما في الوقت الحالي",
+                            "الألم شديد جداً في الوقت الحالي",
+                            "الألم هو الأسوأ الذي يمكن تخيله في الوقت الحالي"
+                        ]
+                    },
+                    {
+                        title: "القسم 2 - العناية الشخصية (الاستحمام، ارتداء الملابس، إلخ)",
+                        options: [
+                            "أستطيع الاعتناء بنفسي بشكل طبيعي دون التسبب في ألم إضافي",
+                            "أستطيع الاعتناء بنفسي بشكل طبيعي لكنه يسبب ألماً إضافياً",
+                            "من المؤلم الاعتناء بنفسي وأنا بطيء وحذر",
+                            "أحتاج إلى بعض المساعدة لكنني أتمكن من معظم العناية الشخصية",
+                            "أحتاج إلى مساعدة يومية في معظم جوانب العناية الذاتية",
+                            "لا أرتدي ملابسي، أستحم بصعوبة وأبقى في السرير"
+                        ]
+                    },
+                    {
+                        title: "القسم 3 - رفع الأشياء",
+                        options: [
+                            "أستطيع رفع الأوزان الثقيلة دون ألم إضافي",
+                            "أستطيع رفع الأوزان الثقيلة لكنها تسبب ألماً إضافياً",
+                            "الألم يمنعني من رفع الأوزان الثقيلة من على الأرض، لكن يمكنني التعامل معها إذا كانت موضوعة بشكل مناسب",
+                            "الألم يمنعني من رفع الأوزان الثقيلة، لكن يمكنني التعامل مع الأوزان الخفيفة إلى المتوسطة إذا كانت موضوعة بشكل مناسب",
+                            "أستطيع رفع أوزان خفيفة جداً فقط",
+                            "لا أستطيع رفع أو حمل أي شيء على الإطلاق"
+                        ]
+                    },
+                    {
+                        title: "القسم 4 - المشي",
+                        options: [
+                            "الألم لا يمنعني من المشي أي مسافة",
+                            "الألم يمنعني من المشي لأكثر من ميل واحد",
+                            "الألم يمنعني من المشي لأكثر من نصف ميل",
+                            "الألم يمنعني من المشي لأكثر من 100 ياردة",
+                            "يمكنني المشي فقط باستخدام عصا أو عكازات",
+                            "أنا في السرير معظم الوقت"
+                        ]
+                    },
+                    {
+                        title: "القسم 5 - الجلوس",
+                        options: [
+                            "أستطيع الجلوس على أي كرسي طالما أريد",
+                            "أستطيع الجلوس فقط على كرسيي المفضل طالما أريد",
+                            "الألم يمنعني من الجلوس لأكثر من ساعة واحدة",
+                            "الألم يمنعني من الجلوس لأكثر من 30 دقيقة",
+                            "الألم يمنعني من الجلوس لأكثر من 10 دقائق",
+                            "الألم يمنعني من الجلوس على الإطلاق"
+                        ]
+                    },
+                    {
+                        title: "القسم 6 - الوقوف",
+                        options: [
+                            "أستطيع الوقوف طالما أريد دون ألم إضافي",
+                            "أستطيع الوقوف طالما أريد لكنه يسبب لي ألماً إضافياً",
+                            "الألم يمنعني من الوقوف لأكثر من ساعة واحدة",
+                            "الألم يمنعني من الوقوف لأكثر من 30 دقيقة",
+                            "الألم يمنعني من الوقوف لأكثر من 10 دقائق",
+                            "الألم يمنعني من الوقوف على الإطلاق"
+                        ]
+                    },
+                    {
+                        title: "القسم 7 - النوم",
+                        options: [
+                            "نومي لا يتعطل أبداً بسبب الألم",
+                            "نومي يتعطل أحياناً بسبب الألم",
+                            "بسبب الألم أنام أقل من 6 ساعات",
+                            "بسبب الألم أنام أقل من 4 ساعات",
+                            "بسبب الألم أنام أقل من ساعتين",
+                            "الألم يمنعني من النوم على الإطلاق"
+                        ]
+                    },
+                    {
+                        title: "القسم 8 - الحياة الجنسية (إن أمكن)",
+                        options: [
+                            "حياتي الجنسية طبيعية ولا تسبب ألماً إضافياً",
+                            "حياتي الجنسية طبيعية لكنها تسبب بعض الألم الإضافي",
+                            "حياتي الجنسية طبيعية تقريباً لكنها مؤلمة جداً",
+                            "حياتي الجنسية مقيدة بشدة بسبب الألم",
+                            "حياتي الجنسية شبه غائبة بسبب الألم",
+                            "الألم يمنع أي حياة جنسية على الإطلاق"
+                        ]
+                    },
+                    {
+                        title: "القسم 9 - الحياة الاجتماعية",
+                        options: [
+                            "حياتي الاجتماعية طبيعية ولا تسبب لي ألماً إضافياً",
+                            "حياتي الاجتماعية طبيعية لكنها تزيد من درجة الألم",
+                            "الألم ليس له تأثير كبير على حياتي الاجتماعية بخلاف تقييد اهتماماتي الأكثر نشاطاً",
+                            "الألم قيد حياتي الاجتماعية ولا أخرج كثيراً",
+                            "الألم قيد حياتي الاجتماعية في منزلي",
+                            "ليس لدي حياة اجتماعية بسبب الألم"
+                        ]
+                    },
+                    {
+                        title: "القسم 10 - السفر",
+                        options: [
+                            "أستطيع السفر إلى أي مكان دون ألم",
+                            "أستطيع السفر إلى أي مكان لكنه يسبب لي ألماً إضافياً",
+                            "الألم سيء لكنني أتمكن من رحلات تزيد عن ساعتين",
+                            "الألم يقيدني برحلات أقل من ساعة واحدة",
+                            "الألم يقيدني برحلات ضرورية قصيرة أقل من 30 دقيقة",
+                            "الألم يمنعني من السفر إلا لتلقي العلاج"
+                        ]
+                    }
+                ],
+                interpretations: {
+                    minimal: "إعاقة بسيطة - يمكن للمريض التعامل مع معظم أنشطة الحياة. عادة لا يشار إلى أي علاج بخلاف النصائح حول الرفع والجلوس والتمارين.",
+                    moderate: "إعاقة متوسطة - يعاني المريض من المزيد من الألم والصعوبة في الجلوس والرفع والوقوف. السفر والحياة الاجتماعية أصعب وقد يكون معاقاً عن العمل. العناية الشخصية والنشاط الجنسي والنوم لا تتأثر بشكل كبير. قد يكون العلاج التحفظي كافياً.",
+                    severe: "إعاقة شديدة - يبقى الألم المشكلة الرئيسية في هذه المجموعة لكن أنشطة الحياة اليومية تتأثر. يحتاج هؤلاء المرضى إلى فحص تفصيلي.",
+                    crippled: "عجز - آلام الظهر تؤثر على جميع جوانب حياة المريض. التدخل الإيجابي مطلوب.",
+                    bedbound: "هؤلاء المرضى إما طريحي الفراش أو يبالغون في أعراضهم."
+                }
+            }
+        };
+
+        let currentLang = 'en';
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.body.classList.toggle('rtl', lang === 'ar');
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateContent();
+        }
+
+        function updateContent() {
+            const t = translations[currentLang];
+            
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('nameLabel').textContent = t.nameLabel;
+            document.getElementById('emailLabel').textContent = t.emailLabel;
+            document.getElementById('submitBtn').textContent = t.submitBtn;
+            document.getElementById('resultTitle').textContent = t.resultTitle;
+            document.getElementById('resultNameLabel').textContent = t.resultNameLabel;
+            document.getElementById('resultEmailLabel').textContent = t.resultEmailLabel;
+            document.getElementById('scoreLabel').textContent = t.scoreLabel;
+            
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const t = translations[currentLang];
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = '';
+            
+            t.questions.forEach((question, qIndex) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'question-title';
+                titleDiv.textContent = question.title;
+                questionDiv.appendChild(titleDiv);
+                
+                question.options.forEach((option, oIndex) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `q${qIndex}`;
+                    radio.value = oIndex;
+                    radio.id = `q${qIndex}_o${oIndex}`;
+                    radio.required = true;
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = `q${qIndex}_o${oIndex}`;
+                    label.textContent = option;
+                    
+                    optionDiv.appendChild(radio);
+                    optionDiv.appendChild(label);
+                    
+                    optionDiv.onclick = function() {
+                        radio.checked = true;
+                    };
+                    
+                    questionDiv.appendChild(optionDiv);
+                });
+                
+                questionsDiv.appendChild(questionDiv);
+            });
+        }
+
+        document.getElementById('odiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('patientName').value;
+            const email = document.getElementById('patientEmail').value;
+            
+            let totalScore = 0;
+            let answeredQuestions = 0;
+            
+            for (let i = 0; i < 10; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selected) {
+                    totalScore += parseInt(selected.value);
+                    answeredQuestions++;
+                }
+            }
+            
+            if (answeredQuestions < 10) {
+                alert(currentLang === 'en' ? 
+                    'Please answer all questions' : 
+                    'يرجى الإجابة على جميع الأسئلة');
+                return;
+            }
+            
+            const percentage = Math.round((totalScore / 50) * 100);
+            
+            document.getElementById('resultName').textContent = name;
+            document.getElementById('resultEmail').textContent = email;
+            document.getElementById('scoreNumber').textContent = percentage;
+            
+            const t = translations[currentLang];
+            let interpretation;
+            
+            if (percentage <= 20) {
+                interpretation = t.interpretations.minimal;
+            } else if (percentage <= 40) {
+                interpretation = t.interpretations.moderate;
+            } else if (percentage <= 60) {
+                interpretation = t.interpretations.severe;
+            } else if (percentage <= 80) {
+                interpretation = t.interpretations.crippled;
+            } else {
+                interpretation = t.interpretations.bedbound;
+            }
+            
+            document.getElementById('interpretationText').textContent = interpretation;
+            
+            document.getElementById('odiForm').classList.add('hidden');
+            document.getElementById('result').classList.add('show');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        renderQuestions();
+    </script>
+</body>
+</html>
